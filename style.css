@@ -1,0 +1,80 @@
+html {
+    height: 100%;
+}
+
+body {
+	height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background: red; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(#1cffbe, #002c4c); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#1cffbe, #002c4c); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#1cffbe, #002c4c); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#1cffbe, #002c4c); /* Standard syntax */
+
+}
+
+span {
+	font-family: Georgia;
+}
+
+.balance {
+	font-size: 30px;
+	font-family: Arial;
+}
+
+#betControls {
+	font-family: Arial;
+	color: white;
+	border: 5px solid #4fd5ff;
+	border-radius: 5px;
+	width: 220px;
+	/* background-color: rgb(0, 247, 185); */
+	background: url(images/bet_background.jpg) repeat center top;
+	overflow:hidden;
+}
+
+.button{
+	color: rgb(30, 30, 30);
+	background: rgb(240, 240, 240);
+	font-weight: bold;
+	border: 1px solid rgb(30, 30, 30);
+	height: 30px;
+	width: 100px;
+}
+
+.button:hover {
+	color: rgb(10,10,10);
+	background: #00b7ef;
+}
+
+#btnBet {
+	height: 30px;
+	width: 200px;
+}
+
+#betControls:hover {
+	border-color: #00b7ef;
+}
+
+#autobet {
+	font-family: Arial;
+	color: white;
+	border: 5px solid #00233d;
+	border-radius: 5px;
+	width: 220px;
+	height: 330px;
+	/* background-color: rgb(68, 183, 255); */
+	background: url(images/autobet_background.png) no-repeat center center;
+	/*background-size: cover;*/
+	overflow:hidden;
+}
+
+#autobet:hover {
+	border-color: #003854;
+}
+
+#autobet_loss_increaseMultiplier {
+	width: 25px;
+}

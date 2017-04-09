@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Betting Sim</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+<center><span style="font-size: 40px; font-family: Arial;">e1ghtSpace's Betting Simulator</span><br>
+<br><span class="balance">Balance: </span><span id="balance" class="balance">Loading...</span></center><br>
+<center><div id="betControls"><center>
+<br><span>Chance of Winning</span><br><input type="text" id="winChance" value="50" style="width: 30px;" /><span>%</span><br>
+
+<br><span>House Edge</span><br><input type="text" id="houseEdge" value="1" style="width: 30px;" /><span>%</span><br><br>
+
+<span>Bet Amount</span><br><input type="number" id="betAmount" value=500 style="width: 65px;" /><br><br>
+
+<span>Potential Profit: </span><br><span id="potentialProfit">Loading...</span><br><input type="button" id="btnUpdatePP" value="Update" onClick="updatePP()"/><br><br>
+<br>
+<input type="button" class="button" id="btnDoubleBet" value="Double Bet" onClick="doubleBet()"/><input type="button" class="button" id="btnHalveBet" value="Halve Bet" onClick="halveBet()"/>
+<br><br>
+<input type="button" class="button" id="btnBet" value="Make Bet" onClick="makeBet()"/><br><br></center></div></center>
+<br>
+<br><center><div id="autobet"><center><br>
+<b>----Autobet----</b>
+<br>
+<form>
+<input type="radio" name="autobetTrue" id="autobet_on" value="On"> on | off <input type="radio" name="autobetTrue" id="autobet_off" value="Off" checked><br>  
+</form><br>
+
+Base Bet: <input type="number" id="autobet_baseBet" value=1 style="width: 70px;" /><br>
+Stop if bet > <input type="number" id="autobet_maxBet" value=1000000 style="width: 70px;" />
+<br><br>
+On loss,
+<form>
+<input type="radio" name="autobet_loss" id="autobet_loss_increasebet" value="increase" checked> increase bet by: <input type="number" id="autobet_loss_increaseMultiplier" value=2 style="width: 25px;" />x<br>
+<input type="radio" name="autobet_loss" id="autobet_loss_returnToBase" value="return"> return to base bet
+</form>
+
+<br>
+On win,
+<form>
+<input type="radio" name="autobet_loss" id="autobet_win_increasebet" value="increase" > increase bet by: <input type="number" id="autobet_win_increaseMultiplier" value=2 style="width: 25px;" />x<br>
+<input type="radio" name="autobet_loss" id="autobet_win_returnToBase" value="return" checked> return to base bet<br>
+<input type="radio" name="autobet_loss" id="autobet_win_stop" value="stop"> stop
+</form></center>
+</div></center>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<script>
+var betAmount = 50;
+var balance = 1000000;
+var betChance = 0;
+var houseEdge = 0.05;
+var betRatio = 1;
+var winChance = 0.5;
+var houseEdge = 0.05;
+var potentialProfit;
+
+
+// Autobet vars
+var wonlastautogame = "2";
+
+
+updateData();
+
+function updateData(){
+	winChance = $("#winChance").val() / 100;
+	houseEdge = $("#houseEdge").val() / 100;
+	
+	$("#betAmount").val(betAmount);
+	potentialProfit = betAmount * (1/winChance) - betAmount;
+	$("#potentialProfit").text(potentialProfit);
+	
+	$("#balance").text(balance);
+	$("#betAmount").text(betAmount);
+	if (balance <= 0){
+		alert("You ran out of coins. Your balance has reset.")
+		balance = 1000000;
+		updateData();
+	}
+	
+}
+
+function doubleBet(){
+	betAmount = $("#betAmount").val();
+	betAmount=betAmount*2;
+	updateData();
+}
+
+function halveBet(){
+	betAmount = $("#betAmount").val();
+	betAmount=betAmount/2;
+	updateData();
+}
+
+function makeBet(){
+	updatePP();
+	betAmount = $("#betAmount").val();
+	
+	if (betAmount > balance) {
+		alert("You need a bet amount that is lower than your balance!");
+	} else {
+		betChance = Math.random(); //creates a random number between 0 and 1
+	
+		if (betChance <= winChance && Math.random() > houseEdge){
+			//on win
+			balance += betAmount * (1/winChance) - betAmount;
+			$("#balance").val(balance);
+			wonlastautogame = "1";
+		} else {
+			//on loss
+			balance -= betAmount
+			$("#balance").val(balance);
+			wonlastautogame = "0";
+		}
+	updateData();
+	}
+}
+
+function updatePP(){ //Update the potential profit
+	winChance = $("#winChance").val() / 100;
+	betAmount = $("#betAmount").val();
+	potentialProfit = betAmount * (1/winChance) - betAmount;
+	$("#potentialProfit").text(potentialProfit);
+}
+
+setInterval( function(){ autobet(); }, 0);//run autobet() every second   //scratch that, as fast as possible
+
+function autobet(){
+	//------ Autobet -------\\
+	if(document.getElementById('autobet_on').checked) {
+		// if autobet is on
+
+		if (wonlastautogame == "2") {  //if this is the first run
+			//get base bet
+			betAmount = $("#autobet_baseBet").val();
+			$("#betAmount").val(betAmount);
+			if (parseFloat(betAmount) <= parseFloat($("#autobet_maxBet").val())) {
+				makeBet();
+			} else {
+				alert("Bet amount is over maximum allowed bet. Stopping autobet...");
+				document.getElementById("autobet_off").checked = true;
+			}
+
+		} else if (wonlastautogame == "1") {
+			//if radio is on return to base bet
+			if (document.getElementById('autobet_win_returnToBase').checked){
+				betAmount = $("#autobet_baseBet").val();
+				$("#betAmount").val(betAmount);
+				if (parseFloat(betAmount) <= parseFloat($("#autobet_maxBet").val())) {
+					makeBet();
+				} else {
+					alert("Bet amount is over maximum allowed bet. Stopping autobet...");
+					document.getElementById("autobet_off").checked = true;
+				}
+			} else if (document.getElementById('autobet_win_increasebet').checked) {
+				betAmount = betAmount * $("#autobet_win_increaseMultiplier").val();
+				$("#betAmount").val(betAmount);
+				if (parseFloat(betAmount) <= parseFloat($("#autobet_maxBet").val())) {
+					makeBet();
+				} else {
+					alert("Bet amount is over maximum allowed bet. Stopping autobet...");
+					document.getElementById("autobet_off").checked = true;
+				}
+
+			} else {
+				document.getElementById("autobet_off").checked = true;
+			}
+
+
+		} else if (wonlastautogame == "0") {
+
+			//if radio is on return to base bet
+			if (document.getElementById('autobet_loss_returnToBase').checked){
+				betAmount = $("#autobet_baseBet").val();
+				$("#betAmount").val(betAmount);
+				if (parseFloat(betAmount) <= parseFloat($("#autobet_maxBet").val())) {
+					makeBet();
+				} else {
+					alert("Bet amount is over maximum allowed bet. Stopping autobet...");
+					document.getElementById("autobet_off").checked = true;
+				}
+
+			} else {
+				betAmount = betAmount * $("#autobet_loss_increaseMultiplier").val();
+				$("#betAmount").val(betAmount);
+				if (parseFloat(betAmount) <= parseFloat($("#autobet_maxBet").val())) {
+					makeBet();
+				} else {
+					alert("Bet amount is over maximum allowed bet. Stopping autobet...");
+					document.getElementById("autobet_off").checked = true;
+				}
+
+			}
+		}
+		
+	}else if(document.getElementById('autobet_off').checked) {
+		//if autobet is off
+		wonlastautogame = "2";
+		//do nothing
+	}
+}
+</script>
+
+</body>
